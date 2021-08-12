@@ -40,7 +40,8 @@
 #   $vhosts
 #       List of vhosts to monitor with service checks. By default, a list of all
 #       vhosts is fetched and each one will be checked using the aliveness API.
-#
+#   $tags
+#       List of tags to attach to every metric and service check emitted.
 # Sample Usage:
 #
 # class { 'datadog_agent::integrations::rabbitmq':
@@ -63,6 +64,7 @@ class datadog_agent::integrations::rabbitmq (
   Array $vhosts              = [],
   Array $exchanges           = [],
   Array $exchanges_regexes   = [],
+  Array $tags                = [],
 ) inherits datadog_agent::params {
 
   include datadog_agent
