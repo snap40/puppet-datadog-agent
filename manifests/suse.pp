@@ -2,16 +2,21 @@
 #
 # This class contains the DataDog agent installation mechanism for SUSE distributions
 #
-
-class datadog_agent::suse(
-  Integer $agent_major_version = $datadog_agent::params::default_agent_major_version,
-  String $agent_version = $datadog_agent::params::agent_version,
-  String $release = $datadog_agent::params::apt_default_release,
-  Optional[String] $agent_repo_uri = undef,
-  String $agent_flavor = $datadog_agent::params::package_name,
+# @param agent_major_version
+# @param agent_version
+# @param release
+# @param agent_repo_uri
+# @param agent_flavor
+# @param rpm_repo_gpgcheck
+#
+class datadog_agent::suse (
+  Integer $agent_major_version         = $datadog_agent::params::default_agent_major_version,
+  String $agent_version                = $datadog_agent::params::agent_version,
+  String $release                      = $datadog_agent::params::apt_default_release,
+  Optional[String] $agent_repo_uri     = undef,
+  String $agent_flavor                 = $datadog_agent::params::package_name,
   Optional[Boolean] $rpm_repo_gpgcheck = undef,
 ) inherits datadog_agent::params {
-
   $current_key = 'https://keys.datadoghq.com/DATADOG_RPM_KEY_CURRENT.public'
   $all_keys = [
     $current_key,
@@ -31,16 +36,16 @@ class datadog_agent::suse(
   }
 
   case $agent_major_version {
-      5 : { fail('Agent v5 package not available in SUSE') }
-      6 : { $gpgkeys = $all_keys }
-      7 : { $gpgkeys = $all_keys }
-      default: { fail('invalid agent_major_version') }
+    '5' : { fail('Agent v5 package not available in SUSE') }
+    '6' : { $gpgkeys = $all_keys }
+    '7' : { $gpgkeys = $all_keys }
+    default: { fail('invalid agent_major_version') }
   }
 
   if ($agent_repo_uri != undef) {
     $baseurl = $agent_repo_uri
   } else {
-    $baseurl = "https://yum.datadoghq.com/suse/${release}/${agent_major_version}/${::architecture}"
+    $baseurl = "https://yum.datadoghq.com/suse/${release}/${agent_major_version}/${facts['os']['architecture']}"
   }
 
   package { 'datadog-agent-base':
@@ -78,7 +83,7 @@ class datadog_agent::suse(
     name         => 'datadog',
     gpgcheck     => 1,
     # zypper on SUSE < 15 only understands a single gpgkey value
-    gpgkey       => (Float($::operatingsystemmajrelease) >= 15.0) ? { true => join($gpgkeys, "\n       "), default => $current_key },
+    gpgkey       => (Float($facts['os']['release']['full']) >= 15.0) ? { true => join($gpgkeys, "\n       "), default => $current_key },
     # TODO: when updating zypprepo to 4.0.0, uncomment the repo_gpgcheck line
     # For now, we can leave this commented, as zypper by default does repodata
     # signature checks if the repomd.xml.asc is present, so repodata checks
@@ -91,5 +96,4 @@ class datadog_agent::suse(
   package { $agent_flavor:
     ensure  => $agent_version,
   }
-
 }

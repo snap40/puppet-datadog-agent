@@ -1,25 +1,32 @@
 # Class: datadog_agent::system_probe
 #
 # This class contains the Datadog agent system probe (NPM) configuration.
-# On Windows, install the NPM driver by setting 'windows_npm_install' 
+# On Windows, install the NPM driver by setting 'windows_npm_install'
 # to 'true on the datadog_agent class.
 #
-
-class datadog_agent::system_probe(
-  Boolean $enabled = false,
-  Boolean $network_enabled = false,
-  Boolean $service_monitoring_enabled = false,
-  Optional[String] $log_file = undef,
-  Optional[String] $sysprobe_socket = undef,
-  Optional[Boolean] $enable_oom_kill = false,
+# @param enabled
+# @param network_enabled
+# @param service_monitoring_enabled
+# @param log_file
+# @param sysprobe_socket
+# @param enable_oom_kill
+# @param runtime_security_config
+# @param service_enable
+# @param service_ensure
+# @param service_provider
+#
+class datadog_agent::system_probe (
+  Boolean $enabled                        = false,
+  Boolean $network_enabled                = false,
+  Boolean $service_monitoring_enabled     = false,
+  Optional[String] $log_file              = undef,
+  Optional[String] $sysprobe_socket       = undef,
+  Optional[Boolean] $enable_oom_kill      = undef,
   Optional[Hash] $runtime_security_config = undef,
-
-  Boolean $service_enable = true,
-  String $service_ensure = 'running',
+  Boolean $service_enable                 = true,
+  String $service_ensure                  = 'running',
   Optional[String] $service_provider = undef,
 ) inherits datadog_agent::params {
-
-
   $sysprobe_config = {
     'system_probe_config' => {
       'enabled' => $enabled,
@@ -36,7 +43,7 @@ class datadog_agent::system_probe(
     'runtime_security_config' => $runtime_security_config,
   }
 
-  if $::operatingsystem == 'Windows' {
+  if $facts['os']['name'] == 'Windows' {
     file { 'C:/ProgramData/Datadog/system-probe.yaml':
       owner   => $datadog_agent::params::dd_user,
       group   => $datadog_agent::params::dd_group,
@@ -45,9 +52,7 @@ class datadog_agent::system_probe(
       require => File['C:/ProgramData/Datadog'],
       notify  => Service[$datadog_agent::params::service_name],
     }
-
   } else {
-
     if $service_provider {
       service { $datadog_agent::params::sysprobe_service_name:
         ensure    => $service_ensure,
@@ -76,5 +81,4 @@ class datadog_agent::system_probe(
       require => File['/etc/datadog-agent'],
     }
   }
-
 }

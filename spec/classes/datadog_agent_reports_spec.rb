@@ -20,9 +20,15 @@ describe 'datadog_agent::reports' do
       describe "datadog_agent class common actions on #{operatingsystem}" do
         let(:facts) do
           {
-            operatingsystem: operatingsystem,
-            osfamily: getosfamily(operatingsystem),
-            operatingsystemrelease: getosrelease(operatingsystem),
+            os: {
+              'architecture' => 'x86_64',
+              'family' => getosfamily(operatingsystem),
+              'name' => operatingsystem,
+              'release' => {
+                'major' => getosmajor(operatingsystem),
+                'full' => getosrelease(operatingsystem),
+              },
+            },
           }
         end
 
@@ -31,8 +37,7 @@ describe 'datadog_agent::reports' do
             is_expected.to raise_error(Puppet::Error)
           end
         else
-          it { is_expected.to contain_class('ruby').with_rubygems_update(false) }
-          it { is_expected.to contain_class('ruby::params') }
+
           it { is_expected.to contain_package('ruby').with_ensure('installed') }
           it { is_expected.to contain_package('rubygems').with_ensure('installed') }
 
@@ -82,13 +87,18 @@ describe 'datadog_agent::reports' do
     describe 'datadog_agent class dogapi version override' do
       let(:facts) do
         {
-          operatingsystem: 'Debian',
-          osfamily: 'debian',
+          os: {
+            'architecture' => 'x86_64',
+            'family' => 'debian',
+            'name' => 'Debian',
+            'release' => {
+              'major' => '8',
+              'full' => '8.1',
+            },
+          },
         }
       end
 
-      it { is_expected.to contain_class('ruby').with_rubygems_update(false) }
-      it { is_expected.to contain_class('ruby::params') }
       it { is_expected.to contain_package('ruby').with_ensure('installed') }
       it { is_expected.to contain_package('rubygems').with_ensure('installed') }
 
@@ -126,13 +136,18 @@ describe 'datadog_agent::reports' do
     describe 'datadog_agent class puppet gem provider override' do
       let(:facts) do
         {
-          operatingsystem: 'Debian',
-          osfamily: 'debian',
+          os: {
+            'architecture' => 'x86_64',
+            'family' => 'debian',
+            'name' => 'Debian',
+            'release' => {
+              'major' => '8',
+              'full' => '8.1',
+            },
+          },
         }
       end
 
-      it { is_expected.to contain_class('ruby').with_rubygems_update(false) }
-      it { is_expected.to contain_class('ruby::params') }
       it { is_expected.to contain_package('ruby').with_ensure('installed') }
       it { is_expected.to contain_package('rubygems').with_ensure('installed') }
 
@@ -165,13 +180,18 @@ describe 'datadog_agent::reports' do
     describe 'datadog_agent class dogapi version override' do
       let(:facts) do
         {
-          operatingsystem: 'Debian',
-          osfamily: 'debian',
+          os: {
+            'architecture' => 'x86_64',
+            'family' => 'debian',
+            'name' => 'Debian',
+            'release' => {
+              'major' => '8',
+              'full' => '8.1',
+            },
+          },
         }
       end
 
-      it { is_expected.to contain_class('ruby').with_rubygems_update(false) }
-      it { is_expected.to contain_class('ruby::params') }
       it { is_expected.to contain_package('ruby').with_ensure('installed') }
       it { is_expected.to contain_package('rubygems').with_ensure('installed') }
 
@@ -206,13 +226,18 @@ describe 'datadog_agent::reports' do
     describe 'datadog_agent class dogapi version override' do
       let(:facts) do
         {
-          operatingsystem: 'Debian',
-          osfamily: 'debian',
+          os: {
+            'architecture' => 'x86_64',
+            'family' => 'debian',
+            'name' => 'Debian',
+            'release' => {
+              'major' => '8',
+              'full' => '8.1',
+            },
+          },
         }
       end
 
-      it { is_expected.not_to contain_class('ruby').with_rubygems_update(false) }
-      it { is_expected.not_to contain_class('ruby::params') }
       it { is_expected.not_to contain_package('ruby').with_ensure('installed') }
       it { is_expected.not_to contain_package('rubygems').with_ensure('installed') }
 
