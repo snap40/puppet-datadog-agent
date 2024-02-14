@@ -40,7 +40,7 @@ define datadog_agent::integration (
     $dst = "${datadog_agent::params::legacy_conf_dir}/${integration}.yaml"
   }
 
-  $file_ensure = $ensure ? { 'default' => 'file', 'absent' => 'absent' }
+  $file_ensure = $ensure ? { 'absent' => 'absent', default => 'file', }
 
   file { $dst:
     ensure  => $file_ensure,
